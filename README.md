@@ -14,6 +14,10 @@ Then run, for example
 node jhuw.js 81
 ```
 
+For an example of the results, see
+[this Wikipedia course
+page](https://en.wikipedia.org/wiki/Education_Program:Johns_Hopkins_University/Molecular_Biology,_Section_81_(SP14)).
+
 ## Implementation
 
 This uses a pretty cool recursive algorithm for assigning reviewers to articles.
