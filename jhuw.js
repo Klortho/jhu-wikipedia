@@ -1,107 +1,43 @@
-﻿/*
-class_data = {
-  students: [
-    [ "Amanaresi", "81C" ],
-    [ "Amontei2", "81E" ],
-    [ "CarpeDiem90", "81H" ],
-    [ "Cchandu1", "81G" ],
-    [ "DHayes14", "81A" ],
-    [ "Gkaltam", "81B" ],
-    [ "Kneal0627", "81F" ],
-    [ "Magladem96", "81E", ],
-    [ "Mmehta10", "81B" ],
-    [ "Mnemcek", "81F" ],
-    [ "PaleoBioJackie", "81G" ],
-    [ "Previte01", "81D" ],
-    [ "ReeseLanger", "81B" ],
-    [ "Richarnj", "81H" ],
-    [ "Ssumpf", "81A" ],
-    [ "Tatabox8", "81C" ],
-    [ "Wpeissner", "81D" ],
-  ],
-  groups: [
-    [ "81A", "Polysomy" ],
-    [ "81B", "AB5 toxin" ],
-    [ "81C", "Spermatocyte" ],
-    [ "81D", "Nondisjunction" ],
-    [ "81E", "DNA base flipping" ],
-    [ "81F", "Gene cluster" ],
-    [ "81G", "Molecular paleontology" ],
-    [ "81H", "Viral transformation" ]
-  ]
-};
-*/
+﻿var usage = 
+  "Usage:  node jhuw.js <section>\n" +
+  "where <section> is, for example, '81', and is used to read in class\n" +
+  "data from a file 81.json.\n";
 
-class_data = {
-  students: [
-    [ "Alpha centauri b", "82I" ],
-    [ "Androidhu", "82I" ],
-    [ "BigA726", "82H" ],
-    [ "Catwell99", "82D" ],
-    [ "Crandel5425", "82B" ],
-    [ "Deacon C", "82C" ],
-    [ "Jhayes21", "82A" ],
-    [ "Jocelyn Munson", "82D" ],
-    [ "Klbarnhill", "82F" ],
-    [ "Lisawisa", "82A" ],
-    [ "Lxu27", "82H" ],
-    [ "Martinhyou", "82E" ],
-    [ "Mishasubz", "82B" ],
-    [ "Msmrugby", "82G" ],
-    [ "Rmiller587", "82E" ],
-    [ "SabFernMB", "82F" ],
-    [ "Tmckenne", "82G" ],
-    [ "Tmo32", "82C" ],
-  ],
-  groups: [
-    [ "82A", "Paraptosis" ],
-    [ "82B", "Aminoallyl nucleotide" ],
-    [ "82C", "Minigene" ],
-    [ "82D", "Protein inhibitor of activated STAT" ],
-    [ "82E", "Dicer" ],
-    [ "82F", "Capping enzyme" ],
-    [ "82G", "Northwestern blot" ],
-    [ "82H", "Histone acetylation and deacetylation" ],
-    [ "82I", "5S ribosomal RNA" ],
-  ]
-};
-
-
-/*
-  First, let's munge up the data to build these structures:
-
-  var students = {
-    usernames: [ ... list ... ],
-    list: [ ... refs to student objects ... ],
-    "Amanaresi": {
-        username: "Amanaresi",
-        num: 0,
-        group_name: "81C",
-        group: ...ref...
-        review1: ...ref to group...,
-        review2: ...ref to group...,
-        review3: ...ref to group...,
-    },
-    ...
+var section = '';
+process.argv.forEach(function(val, index, array) {
+  //console.log(index + ': ' + val);
+  if (index > 1) {
+    if (val == '-?' || val == '-h') {
+      console.log(usage);
+      process.exit(0);
+    }
+    if (section != '') {
+      console.log("Extra argument encountered.\n" + usage);
+      process.exit(1);
+    }
+    section = val;
   }
+});
 
-  var groups = {
-    names: [ ... list ... ],
-    list: [ ... refs to group objects ... ],
-    "81A": {
-        name: "81A",
-        num: 0,
-        article: "Polysomy",
-        students: [ ...refs...]
-        num_reviewers:  0
-    },
-    ...
-  };
-*/
+var fs = require('fs');
+var class_data_file = __dirname + '/' + section + '.json';
+console.log("class_data_file = " + class_data_file);
+try {
+  var class_data_contents = fs.readFileSync(class_data_file, {encoding: 'utf8'});
+  var class_data = JSON.parse(class_data_contents);
+}
+catch(err) {
+  console.log("Problem reading the class data:\n" + err.stack);
+  process.exit(1);
+}
+//console.log("class_data: " + class_data);
 
+
+// Munge the class data to build accessor data structures
 var num_students = class_data.students.length;
 var num_groups = class_data.groups.length;
 var groups_with_three_students = 0;
+var groups_with_three_reviewers = [0, 0, 0];
 
 var students = {
     usernames: [],
@@ -116,6 +52,7 @@ for (var sn = 0; sn < num_students; ++sn) {
         username: username,
         num: sn,
         group_name: group_name,
+        reviews: [],
     };
     students[username] = student;
     students.list.push(student);
@@ -135,107 +72,153 @@ for (var gn = 0; gn < num_groups; ++gn) {
         num: gn,
         article: article,
         students: [],
-        num_reviewers: 0
+        num_reviewers: [ 0, 0, 0 ]
     };
     groups[name] = group;
     groups.list.push(group);
 }
+
 for (sn = 0; sn < num_students; ++sn) {
     var sd = class_data.students[sn];
     var username = sd[0];
     var group_name = sd[1];
     var student = students[username];
-    console.info("group_name = " + group_name);
+    //console.info("group_name = " + group_name);
     var group = groups[group_name];
     student.group = group;
     group.students.push(student);
     if (group.students.length == 3) groups_with_three_students++;
+    
+    // class data might have already-specified reviews
+    for (sdn = 2; sdn < sd.length; ++sdn) {
+      var review_n = sdn - 2;
+      var review_group_name = sd[sdn];
+      var review_group = groups[review_group_name];
+      student.reviews.push(review_group);
+      review_group.num_reviewers[review_n]++;
+    }
 }
 
 console.info("groups_with_three_students = " + groups_with_three_students);
-groups_with_three_reviewers = 0;
 
+var util = require('util');
+//console.log(util.inspect(students, {showHidden: false, depth: null}));
+//console.log(util.inspect(groups, {showHidden: false, depth: null}));
 
-first_reviews = {
-  "Alpha centauri b": "82G",
-  "Androidhu": "82B",
-  "BigA726": "82B",
-  "Catwell99": "82F",
-  "Crandel5425": "82A",
-  "Deacon C": "82F",
-  "Jhayes21": "82H",
-  "Jocelyn Munson": "82E",
-  "Klbarnhill": "82E",
-  "Lisawisa": "82D",
-  "Lxu27": "82A",
-  "Martinhyou": "82G",
-  "Mishasubz": "82H",
-  "Msmrugby": "82G",
-  "Rmiller587": "82G",
-  "SabFernMB": "82D",
-  "Tmckenne": "82I",
-  "Tmo32": "82I"
-};
-for (var sname in first_reviews) {
-  var rev_group_name = first_reviews[sname];
-  var student = students[sname];
-  var rev_group = groups[rev_group_name];
-  student.review1 = rev_group;
-  rev_group.num_reviewers++;
-};
-
-assign_student_review(0, 1);
+//console.log("students:\n", students);
+//console.log("groups:\n" + groups);
 
 
 
-// This tries one review for this student, and then recurses.  It returns true
-// if we are all done, or false if it couldn't find a solution.
+
+var depth = 0;
+assign_student_review(0, 0);
+
+
+
+// This tries one review for this student, and then recurses to try the next student
+// and/or next review.  It returns true if we are all, completely done (all students
+// have been assigned three reviews) or false if it couldn't find a solution.
+function done_or_recurse(sn, rn) {
+  var result;
+  depth++;
+  //console.log("done_or_recurse(" + sn + ", " + rn + "), depth: " + depth);
+  
+  // Are we done?
+  var last_student = (sn == num_students - 1);
+  if (last_student && rn == 2) return true;
+
+  // Try to recurse
+  var next_sn = last_student ? 0 : sn+1;
+  var next_rn = last_student ? rn+1 : rn;
+  
+  result = assign_student_review(next_sn, next_rn);
+  depth--;
+  return result;
+}
+
 function assign_student_review(sn, rn) {
+    debugger;
+    var result;
+    depth++;
+    //console.log("assign_student_review(" + sn + ", " + rn + "), depth: " + depth);
+    
     var student = students.list[sn];
     var group = student.group;
-    var review_n = "review" + (rn = 1);
-    console.info("sn = " + sn + ", review_n = " + review_n + ", num_students = " + num_students);
 
-    // Randomize list of articles to try
+    // Maybe this one is already assigned:
+    if (student.reviews[rn]) {
+      result = done_or_recurse(sn, rn);
+      depth--;
+      return result;
+    }
+    
+    // Randomize a list of articles to try
     var groups_to_try = random_list(num_groups);
     for (var try_num = 0; try_num < num_groups; ++try_num) {
         var review_group_num = groups_to_try[try_num];
+        
         // Not allowed to review your own group.
         if (review_group_num == group.num) continue;
-        review_group = groups.list[review_group_num];
+        
         // No group can have more than three reviewers
-        var num_reviewers = review_group.num_reviewers;
+        review_group = groups.list[review_group_num];
+        var num_reviewers = review_group.num_reviewers[rn];
         if (num_reviewers > 2) continue;
+        
         // Only a limited number can have three reviewers
-        if (num_reviewers == 2 && groups_with_three_reviewers == groups_with_three_students)
+        if (num_reviewers == 2 && groups_with_three_reviewers[rn] == groups_with_three_students)
             continue;
 
+        // FIXME:  not allowed to review the same group twice
+        var okay = true;
+        for (var i = 0; i < rn; ++i) {
+          if (student.reviews[i] == review_group) {
+            okay = false;
+            break;
+          }
+        }
+        if (!okay) continue;
+
         // Cast it in bronze.
-        student[review_n] = review_group;
-        review_group.num_reviewers++
-        if (review_group.num_reviewers == 3) groups_with_three_reviewers++;
-        console.info("review_group.num_reviewers = " + review_group.num_reviewers + ", " +
-                     "groups_with_three_reviewers = " + groups_with_three_reviewers + ", " +
-                     "sn = " + sn);
-        // Are we done?
-        if (sn == num_students - 1) return true;
+        student.reviews[rn] = review_group;
+        review_group.num_reviewers[rn]++
+        if (review_group.num_reviewers[rn] == 3) groups_with_three_reviewers[rn]++;
+        //console.info("review_group.num_reviewers = " + review_group.num_reviewers + ", " +
+        //             "groups_with_three_reviewers = " + groups_with_three_reviewers + ", " +
+        //             "sn = " + sn);
 
-        // Try to recurse
-        var result = assign_student_review(sn + 1, rn);
-        if (result) return true;
-
-        // Back up
-        if (review_group.num_reviewers == 3) groups_with_three_reviewers--;
-        review_group.num_reviewers--;
-        student[review_n] = null;
+        if (done_or_recurse(sn, rn)) {
+          depth--;
+          return true;
+        }
+        else {
+          // Back up
+          if (review_group.num_reviewers[rn] == 3) groups_with_three_reviewers[rn]--;
+          review_group.num_reviewers[rn]--;
+          student.reviews[rn] = null;
+        }
     }
+    depth--;
     return false;
 }
 
 //console.info(groups);
-console.log("students: ", students);
-process.exit(0);
+//console.log("students: ", students);
 
+var sprintf=require("sprintf-js").sprintf;
+console.info("             Student     Group   Review 1   Review 2   Review 3");
+for (sn = 0; sn < num_students; ++sn) {
+    var sd = class_data.students[sn];
+    var username = sd[0];
+    var group_name = sd[1];
+    var student = students[username];
+    var reviews = student.reviews;
+    console.log(sprintf("%20s  %7s  %7s    %7s    %7s", username, group_name, 
+      reviews[0].name, reviews[1].name, reviews[2].name));
+}
+
+//process.exit(0);
 
 console.info(
     "===Students / articles===\n" +
@@ -258,9 +241,9 @@ for (sn = 0; sn < num_students; ++sn) {
         "| [[Wikipedia:USEP/Courses/JHU MolBio Ogg SP14/Group " + group_name + "|" +
             group_name + "]]\n" +
         "| [[" + student.group.article + "]]\n" +
-        "| [[" + student.review1.article + "]]\n" +
-        "| [[article]]\n" +
-        "| [[article]]"
+        "| [[" + student.reviews[0].article + "]]\n" +
+        "| [[" + student.reviews[1].article + "]]\n" +
+        "| [[" + student.reviews[2].article + "]]"
     );
 }
 console.info("|}\n\n");

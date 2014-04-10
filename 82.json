@@ -1,0 +1,33 @@
+{
+  "students": [
+    [ "Alpha centauri b", "82I", "82G" ],
+    [ "Androidhu",        "82I", "82B" ],
+    [ "BigA726",          "82H", "82B" ],
+    [ "Catwell99",        "82D", "82F" ],
+    [ "Crandel5425",      "82B", "82A" ],
+    [ "Deacon C",         "82C", "82F" ],
+    [ "Jhayes21",         "82A", "82H" ],
+    [ "Jocelyn Munson",   "82D", "82E" ],
+    [ "Klbarnhill",       "82F", "82E" ],
+    [ "Lisawisa",         "82A", "82D" ],
+    [ "Lxu27",            "82H", "82A" ],
+    [ "Martinhyou",       "82E", "82C" ],
+    [ "Mishasubz",        "82B", "82H" ],
+    [ "Msmrugby",         "82G", "82C" ],
+    [ "Rmiller587",       "82E", "82G" ],
+    [ "SabFernMB",        "82F", "82D" ],
+    [ "Tmckenne",         "82G", "82I" ],
+    [ "Tmo32",            "82C", "82I" ]
+  ],
+  "groups": [
+    [ "82A", "Paraptosis" ],
+    [ "82B", "Aminoallyl nucleotide" ],
+    [ "82C", "Minigene" ],
+    [ "82D", "Protein inhibitor of activated STAT" ],
+    [ "82E", "Dicer" ],
+    [ "82F", "Capping enzyme" ],
+    [ "82G", "Northwestern blot" ],
+    [ "82H", "Histone acetylation and deacetylation" ],
+    [ "82I", "5S ribosomal RNA" ]
+  ]
+}

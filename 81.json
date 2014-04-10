@@ -1,0 +1,31 @@
+{
+  "students": [
+    [ "Amanaresi",      "81C", "81E" ],
+    [ "Amontei2",       "81E", "81G" ],
+    [ "CarpeDiem90",    "81H", "81D" ],
+    [ "Cchandu1",       "81G", "81E" ],
+    [ "DHayes14",       "81A", "81E" ],
+    [ "Gkaltam",        "81B", "81G" ],
+    [ "Kneal0627",      "81F", "81B" ],
+    [ "Magladem96",     "81E", "81C" ],
+    [ "Mmehta10",       "81B", "81F" ],
+    [ "Mnemcek",        "81F", "81A" ],
+    [ "PaleoBioJackie", "81G", "81C" ],
+    [ "Previte01",      "81D", "81A" ],
+    [ "ReeseLanger",    "81B", "81H" ],
+    [ "Richarnj",       "81H", "81F" ],
+    [ "Ssumpf",         "81A", "81D" ],
+    [ "Tatabox8",       "81C", "81H" ],
+    [ "Wpeissner",      "81D", "81B" ]
+  ],
+  "groups": [
+    [ "81A", "Polysomy" ],
+    [ "81B", "AB5 toxin" ],
+    [ "81C", "Spermatocyte" ],
+    [ "81D", "Nondisjunction" ],
+    [ "81E", "DNA base flipping" ],
+    [ "81F", "Gene cluster" ],
+    [ "81G", "Molecular paleontology" ],
+    [ "81H", "Viral transformation" ]
+  ]
+}
