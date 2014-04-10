@@ -154,13 +154,48 @@ for (sn = 0; sn < num_students; ++sn) {
 
 console.info("groups_with_three_students = " + groups_with_three_students);
 groups_with_three_reviewers = 0;
-assign_student_review(0, 0);
+
+
+first_reviews = {
+  "Alpha centauri b": "82G",
+  "Androidhu": "82B",
+  "BigA726": "82B",
+  "Catwell99": "82F",
+  "Crandel5425": "82A",
+  "Deacon C": "82F",
+  "Jhayes21": "82H",
+  "Jocelyn Munson": "82E",
+  "Klbarnhill": "82E",
+  "Lisawisa": "82D",
+  "Lxu27": "82A",
+  "Martinhyou": "82G",
+  "Mishasubz": "82H",
+  "Msmrugby": "82G",
+  "Rmiller587": "82G",
+  "SabFernMB": "82D",
+  "Tmckenne": "82I",
+  "Tmo32": "82I"
+};
+for (var sname in first_reviews) {
+  var rev_group_name = first_reviews[sname];
+  var student = students[sname];
+  var rev_group = groups[rev_group_name];
+  student.review1 = rev_group;
+  rev_group.num_reviewers++;
+};
+
+assign_student_review(0, 1);
+
+
 
 // This tries one review for this student, and then recurses.  It returns true
 // if we are all done, or false if it couldn't find a solution.
 function assign_student_review(sn, rn) {
     var student = students.list[sn];
     var group = student.group;
+    var review_n = "review" + (rn = 1);
+    console.info("sn = " + sn + ", review_n = " + review_n + ", num_students = " + num_students);
+
     // Randomize list of articles to try
     var groups_to_try = random_list(num_groups);
     for (var try_num = 0; try_num < num_groups; ++try_num) {
@@ -176,11 +211,12 @@ function assign_student_review(sn, rn) {
             continue;
 
         // Cast it in bronze.
-        student.review1 = review_group;
+        student[review_n] = review_group;
         review_group.num_reviewers++
         if (review_group.num_reviewers == 3) groups_with_three_reviewers++;
         console.info("review_group.num_reviewers = " + review_group.num_reviewers + ", " +
-                     "groups_with_three_reviewers = " + groups_with_three_reviewers);
+                     "groups_with_three_reviewers = " + groups_with_three_reviewers + ", " +
+                     "sn = " + sn);
         // Are we done?
         if (sn == num_students - 1) return true;
 
@@ -191,12 +227,15 @@ function assign_student_review(sn, rn) {
         // Back up
         if (review_group.num_reviewers == 3) groups_with_three_reviewers--;
         review_group.num_reviewers--;
-        student.review1 = null;
+        student[review_n] = null;
     }
     return false;
 }
 
 //console.info(groups);
+console.log("students: ", students);
+process.exit(0);
+
 
 console.info(
     "===Students / articles===\n" +
